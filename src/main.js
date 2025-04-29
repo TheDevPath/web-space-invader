@@ -21,43 +21,27 @@ const game = new Phaser.Game(config);
 
 let ship;
 let cursors;
-let graphics;
 let bullets;
 let aliens;
 let alienVelocity = 50; // Horizontal velocity of the aliens
 let alienDirection = 1; // 1 for right, -1 for left
 
 function preload() {
-  // Load assets here
+  // Preload the player ship and alien images
+  this.load.image('playerShip', '/assets/playerShip.png');
+  this.load.image('alien', '/assets/alien.png');
 }
 
 function create() {
-  // Use the existing `graphics` variable declared at the top
-  graphics = this.add.graphics();
+  // Create the player's ship as a physics-enabled sprite using the preloaded texture
+  ship = this.physics.add.sprite(
+    this.sys.game.config.width / 2, // Center horizontally
+    this.sys.game.config.height - 30, // Position near the bottom
+    'playerShip' // Use the preloaded texture
+  );
 
-  // Set the fill color to white
-  graphics.fillStyle(0xffffff, 1);
-
-  // Draw the ship's body (a rectangle)
-  const shipWidth = 50;
-  const shipHeight = 20;
-  const cannonHeight = 10;
-  const canvasWidth = this.sys.game.config.width;
-  const canvasHeight = this.sys.game.config.height;
-
-  // Center the ship horizontally on the canvas
-  const shipX = canvasWidth / 2 - shipWidth / 2;
-  const shipY = canvasHeight - shipHeight - 10; // 10px above the bottom
-
-  graphics.fillRect(shipX, shipY, shipWidth, shipHeight);
-
-  // Draw the ship's cannon (a smaller rectangle on top)
-  const cannonX = shipX + shipWidth / 2 - 5;
-  const cannonY = shipY - cannonHeight;
-  graphics.fillRect(cannonX, cannonY, 10, cannonHeight);
-
-  // Store the ship's position for movement
-  ship = { x: shipX, y: shipY, width: shipWidth, height: shipHeight };
+  // Enable collision with world bounds
+  ship.body.setCollideWorldBounds(true);
 
   // Enable keyboard input for arrow keys
   cursors = this.input.keyboard.createCursorKeys();
@@ -74,7 +58,7 @@ function create() {
   // Create a group for aliens
   aliens = this.physics.add.group();
 
-  // Arrange aliens in a grid
+  // Arrange aliens in a grid using the preloaded texture
   const rows = 3; // Number of rows
   const cols = 8; // Number of columns
   const alienWidth = 40; // Width of each alien
@@ -86,7 +70,7 @@ function create() {
     for (let col = 0; col < cols; col++) {
       const x = 100 + col * (alienWidth + spacingX); // Calculate x position
       const y = 50 + row * (alienHeight + spacingY); // Calculate y position
-      const alien = aliens.create(x, y, 'alien');
+      const alien = aliens.create(x, y, 'alien'); // Use the preloaded texture
       alien.setSize(alienWidth, alienHeight); // Set size for collision detection
       alien.setActive(true);
       alien.setVisible(true);
@@ -94,7 +78,13 @@ function create() {
   }
 
   // Add collision detection between bullets and aliens
-  this.physics.add.overlap(bullets, aliens, handleBulletAlienCollision, null, this);
+  this.physics.add.overlap(
+    bullets,
+    aliens,
+    handleBulletAlienCollision,
+    null,
+    this
+  );
 }
 
 function resetAliens() {
@@ -121,22 +111,17 @@ function resetAliens() {
 }
 
 function update() {
-  // Clear the graphics object to remove previous drawings
-  graphics.clear();
-
   // Move the ship left or right based on arrow key input
   const speed = 5;
 
   if (cursors.left.isDown) {
-    ship.x = Math.max(0, ship.x - speed); // Move left, stay within bounds
+    ship.x = Math.max(20, ship.x - speed); // Adjusted left boundary to 5
   } else if (cursors.right.isDown) {
-    ship.x = Math.min(this.sys.game.config.width - ship.width, ship.x + speed); // Move right, stay within bounds
+    ship.x = Math.min(
+      this.sys.game.config.width - ship.displayWidth + 20,
+      ship.x + speed
+    ); // Adjusted right boundary to account for ship width and added a 5px margin
   }
-
-  // Redraw the ship at its new position
-  graphics.fillStyle(0xffffff, 1);
-  graphics.fillRect(ship.x, ship.y, ship.width, ship.height);
-  graphics.fillRect(ship.x + ship.width / 2 - 5, ship.y - 10, 10, 10); // Cannon
 
   // Update bullets
   bullets.children.each((bullet) => {
