@@ -207,9 +207,27 @@ function handleAlienShipCollision(alien, ship) {
   // Display a Game Over message
   const gameOverText = this.add.text(
     this.sys.game.config.width / 2,
-    this.sys.game.config.height / 2,
+    this.sys.game.config.height / 2 - 50,
     'Game Over',
     { fontSize: '48px', fill: '#fff' }
   );
   gameOverText.setOrigin(0.5);
+
+  // Create a reset button
+  const resetButton = document.createElement('button');
+  resetButton.innerText = 'Restart';
+  resetButton.style.position = 'absolute';
+  resetButton.style.top = '50%';
+  resetButton.style.left = '50%';
+  resetButton.style.transform = 'translate(-50%, 50px)';
+  resetButton.style.padding = '10px 20px';
+  resetButton.style.fontSize = '16px';
+  resetButton.style.cursor = 'pointer';
+  document.body.appendChild(resetButton);
+
+  // Add click event to restart the game
+  resetButton.addEventListener('click', () => {
+    resetButton.remove(); // Remove the button from the DOM
+    this.scene.restart(); // Restart the current scene
+  });
 }
