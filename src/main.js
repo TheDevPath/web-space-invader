@@ -23,7 +23,7 @@ let ship;
 let cursors;
 let bullets;
 let aliens;
-let alienVelocity = 50; // Horizontal velocity of the aliens
+let alienVelocity = 250; // Horizontal velocity of the aliens
 let alienDirection = 1; // 1 for right, -1 for left
 
 function preload() {
@@ -85,6 +85,9 @@ function create() {
     null,
     this
   );
+
+  // Add collision detection between aliens and the player's ship
+  this.physics.add.overlap(aliens, ship, handleAlienShipCollision, null, this);
 }
 
 function resetAliens() {
@@ -192,4 +195,21 @@ function handleBulletAlienCollision(bullet, alien) {
   // Deactivate and hide the alien
   alien.setActive(false);
   alien.setVisible(false);
+}
+
+function handleAlienShipCollision(alien, ship) {
+  // Stop the game
+  this.physics.pause();
+
+  // Disable shooting by removing the spacebar listener
+  this.input.keyboard.off('keydown-SPACE', shootBullet, this);
+
+  // Display a Game Over message
+  const gameOverText = this.add.text(
+    this.sys.game.config.width / 2,
+    this.sys.game.config.height / 2,
+    'Game Over',
+    { fontSize: '48px', fill: '#fff' }
+  );
+  gameOverText.setOrigin(0.5);
 }
