@@ -23,6 +23,9 @@ let ship;
 let cursors;
 let graphics;
 let bullets;
+let aliens;
+let alienVelocity = 50; // Horizontal velocity of the aliens
+let alienDirection = 1; // 1 for right, -1 for left
 
 function preload() {
   // Load assets here
@@ -67,6 +70,28 @@ function create() {
 
   // Add a key listener for shooting
   this.input.keyboard.on('keydown-SPACE', shootBullet, this);
+
+  // Create a group for aliens
+  aliens = this.physics.add.group();
+
+  // Arrange aliens in a grid
+  const rows = 3; // Number of rows
+  const cols = 8; // Number of columns
+  const alienWidth = 40; // Width of each alien
+  const alienHeight = 40; // Height of each alien
+  const spacingX = 20; // Horizontal spacing between aliens
+  const spacingY = 20; // Vertical spacing between rows
+
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      const x = 100 + col * (alienWidth + spacingX); // Calculate x position
+      const y = 50 + row * (alienHeight + spacingY); // Calculate y position
+      const alien = aliens.create(x, y, 'alien');
+      alien.setSize(alienWidth, alienHeight); // Set size for collision detection
+      alien.setActive(true);
+      alien.setVisible(true);
+    }
+  }
 }
 
 function update() {
@@ -90,10 +115,34 @@ function update() {
   // Update bullets
   bullets.children.each((bullet) => {
     if (bullet.active && bullet.y < 0) {
+      bullet.setSize(5, 5);
       bullet.setActive(false);
       bullet.setVisible(false);
     }
   });
+
+  // Move aliens
+  let hitEdge = false;
+  aliens.children.each((alien) => {
+    if (alien.active) {
+      alien.x += alienDirection * alienVelocity * 0.016; // Move horizontally (0.016 is ~60fps delta time)
+
+      // Check if an alien hits the edge of the canvas
+      if (alien.x < 30 || alien.x + alien.width > this.sys.game.config.width) {
+        hitEdge = true;
+      }
+    }
+  });
+
+  // Reverse direction and move down if an edge is hit
+  if (hitEdge) {
+    alienDirection *= -1; // Reverse direction
+    aliens.children.each((alien) => {
+      if (alien.active) {
+        alien.y += 20; // Move down
+      }
+    });
+  }
 }
 
 function shootBullet() {
