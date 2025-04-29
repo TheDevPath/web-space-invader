@@ -1,0 +1,12 @@
+{
+  "name": "web-space-invader",
+  "version": "1.0.0",
+  "description": "Vibe Coded Space Invaders",
+  "license": "ISC",
+  "author": "Bryan Sharpley",
+  "type": "module",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
