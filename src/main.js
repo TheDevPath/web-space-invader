@@ -14,14 +14,16 @@ const config = {
 const game = new Phaser.Game(config);
 
 let ship;
+let cursors;
+let graphics;
 
 function preload() {
   // Load assets here
 }
 
 function create() {
-  // Create a graphics object
-  const graphics = this.add.graphics();
+  // Use the existing `graphics` variable declared at the top
+  graphics = this.add.graphics();
 
   // Set the fill color to white
   graphics.fillStyle(0xffffff, 1);
@@ -46,8 +48,26 @@ function create() {
 
   // Store the ship's position for movement
   ship = { x: shipX, y: shipY, width: shipWidth, height: shipHeight };
+
+  // Enable keyboard input for arrow keys
+  cursors = this.input.keyboard.createCursorKeys();
 }
 
 function update() {
-  // Game loop logic here
+  // Clear the graphics object to remove previous drawings
+  graphics.clear();
+
+  // Move the ship left or right based on arrow key input
+  const speed = 5;
+
+  if (cursors.left.isDown) {
+    ship.x = Math.max(0, ship.x - speed); // Move left, stay within bounds
+  } else if (cursors.right.isDown) {
+    ship.x = Math.min(this.sys.game.config.width - ship.width, ship.x + speed); // Move right, stay within bounds
+  }
+
+  // Redraw the ship at its new position
+  graphics.fillStyle(0xffffff, 1);
+  graphics.fillRect(ship.x, ship.y, ship.width, ship.height);
+  graphics.fillRect(ship.x + ship.width / 2 - 5, ship.y - 10, 10, 10); // Cannon
 }
