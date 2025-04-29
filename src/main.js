@@ -92,6 +92,9 @@ function create() {
       alien.setVisible(true);
     }
   }
+
+  // Add collision detection between bullets and aliens
+  this.physics.add.overlap(bullets, aliens, handleBulletAlienCollision, null, this);
 }
 
 function update() {
@@ -155,4 +158,14 @@ function shootBullet() {
     bullet.setVisible(true);
     bullet.body.velocity.y = -300; // Move bullet upward
   }
+}
+
+function handleBulletAlienCollision(bullet, alien) {
+  // Deactivate and hide the bullet
+  bullet.setActive(false);
+  bullet.setVisible(false);
+
+  // Deactivate and hide the alien
+  alien.setActive(false);
+  alien.setVisible(false);
 }
