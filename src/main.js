@@ -97,6 +97,29 @@ function create() {
   this.physics.add.overlap(bullets, aliens, handleBulletAlienCollision, null, this);
 }
 
+function resetAliens() {
+  // Reset the alien group to start from the top
+  const rows = 3; // Number of rows
+  const cols = 8; // Number of columns
+  const alienWidth = 40; // Width of each alien
+  const alienHeight = 40; // Height of each alien
+  const spacingX = 20; // Horizontal spacing between aliens
+  const spacingY = 20; // Vertical spacing between rows
+
+  aliens.clear(true, true); // Remove all existing aliens
+
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      const x = 100 + col * (alienWidth + spacingX); // Calculate x position
+      const y = 50 + row * (alienHeight + spacingY); // Calculate y position
+      const alien = aliens.create(x, y, 'alien');
+      alien.setSize(alienWidth, alienHeight); // Set size for collision detection
+      alien.setActive(true);
+      alien.setVisible(true);
+    }
+  }
+}
+
 function update() {
   // Clear the graphics object to remove previous drawings
   graphics.clear();
@@ -145,6 +168,22 @@ function update() {
         alien.y += 20; // Move down
       }
     });
+  }
+
+  // Check if any alien has passed the bottom of the canvas
+  let aliensPassedBottom = false;
+  aliens.children.each((alien) => {
+    if (alien.active && alien.y > this.sys.game.config.height) {
+      aliensPassedBottom = true;
+    }
+  });
+
+  // Check if all aliens are inactive
+  const allAliensDestroyed = aliens.countActive() === 0;
+
+  // Reset aliens if they pass the bottom or all are destroyed
+  if (aliensPassedBottom || allAliensDestroyed) {
+    resetAliens();
   }
 }
 
