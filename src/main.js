@@ -4,6 +4,12 @@ const config = {
   type: Phaser.AUTO,
   width: 800,
   height: 600,
+  physics: {
+    default: 'arcade',
+    arcade: {
+      debug: false, // Set to true if you want to see physics boundaries
+    },
+  },
   scene: {
     preload,
     create,
@@ -16,6 +22,7 @@ const game = new Phaser.Game(config);
 let ship;
 let cursors;
 let graphics;
+let bullets;
 
 function preload() {
   // Load assets here
@@ -51,6 +58,15 @@ function create() {
 
   // Enable keyboard input for arrow keys
   cursors = this.input.keyboard.createCursorKeys();
+
+  // Create a group for bullets
+  bullets = this.physics.add.group({
+    defaultKey: 'bullet',
+    maxSize: 10, // Limit the number of bullets
+  });
+
+  // Add a key listener for shooting
+  this.input.keyboard.on('keydown-SPACE', shootBullet, this);
 }
 
 function update() {
@@ -70,4 +86,24 @@ function update() {
   graphics.fillStyle(0xffffff, 1);
   graphics.fillRect(ship.x, ship.y, ship.width, ship.height);
   graphics.fillRect(ship.x + ship.width / 2 - 5, ship.y - 10, 10, 10); // Cannon
+
+  // Update bullets
+  bullets.children.each((bullet) => {
+    if (bullet.active && bullet.y < 0) {
+      bullet.setActive(false);
+      bullet.setVisible(false);
+    }
+  });
+}
+
+function shootBullet() {
+  // Get a bullet from the group
+  const bullet = bullets.get(ship.x + ship.width / 2 - 2.5, ship.y - 10);
+
+  if (bullet) {
+    // Set bullet properties
+    bullet.setActive(true);
+    bullet.setVisible(true);
+    bullet.body.velocity.y = -300; // Move bullet upward
+  }
 }
